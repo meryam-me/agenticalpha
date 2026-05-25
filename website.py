@@ -1183,8 +1183,8 @@ elif page == "📂 Custom Analysis":
                         for line in lines:
                             if line.startswith("DECISION:"): dec=line.replace("DECISION:","").strip()
                             elif "SCORE:" in line:
-    try: sc=str(int(''.join(filter(str.isdigit, line.split("SCORE:")[-1].strip()))[:3]))
-    except: sc="50"
+                                try: sc=str(int(''.join(filter(str.isdigit, line.split("SCORE:")[-1].strip()))[:3]))
+                                except: sc="50"
                             elif "CONFIDENCE:" in line:
     try: conf=str(int(''.join(filter(str.isdigit, line.split("CONFIDENCE:")[-1].strip()))[:3]))
     except: conf="50"

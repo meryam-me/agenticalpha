@@ -449,7 +449,7 @@ if page == "⚡ Home":
     """, unsafe_allow_html=True)
 
     c1,c2,c3,c4 = st.columns(4)
-    with c1: st.metric("📊 Cases Tested","20")
+    with c1: st.metric("📊 Cases Confirmed","19")
     with c2: st.metric("🤖 AI Simulations","60")
     with c3: st.metric("🎯 Best Accuracy",f"{round(df_h['Conservative_Correct'].mean()*100)}%")
     with c4: st.metric("🧠 Bias Types","5")
@@ -500,22 +500,14 @@ if page == "⚡ Home":
                 border-radius:16px; padding:32px; text-align:center;'>
         <div style='color:#FFD700; font-size:20px; font-weight:800;
                     margin-bottom:8px;'>Ready to Simulate?</div>
-        <div style='color:#94a3b8; font-size:13px; margin-bottom:16px;
+        <div style='color:#94a3b8; font-size:13px; margin-bottom:12px;
                     line-height:1.6;'>
-            Use the Live Analyzer to simulate any corporate investment decision
-            in seconds — or try Custom Analysis for your own company data.
-        </div>
-        <div style='display:flex; justify-content:center; gap:12px;
-                    flex-wrap:wrap;'>
-            <div style='background:#c9a227; color:#0a1628; font-weight:800;
-                        padding:10px 24px; border-radius:8px; font-size:13px;'>
-                🤖 Try Live Analyzer →</div>
-            <div style='border:2px solid #c9a227; color:#c9a227; font-weight:700;
-                        padding:10px 24px; border-radius:8px; font-size:13px;'>
-                📂 Custom Analysis →</div>
+            Use the sidebar navigation on the left to access
+            the Live Analyzer and Custom Analysis
         </div>
     </div>
     """, unsafe_allow_html=True)
+    st.info("👈 Use the sidebar navigation to get started")
 
 # LIVE ANALYZER
 elif page == "🤖 Live Analyzer":
@@ -592,8 +584,8 @@ elif page == "🤖 Live Analyzer":
                         for line in lines:
                             if line.startswith("DECISION:"): dec=line.replace("DECISION:","").strip()
                             elif "SCORE:" in line:
-    try: sc=str(int(''.join(filter(str.isdigit, line.split("SCORE:")[-1].strip()))[:3]))
-    except: sc="50"
+                                try: sc=str(int(''.join(filter(str.isdigit, line.split("SCORE:")[-1].strip()))[:3]))
+                                except: sc="50"
                             elif line.startswith("CONFIDENCE:"): conf=line.replace("CONFIDENCE:","").strip()
                             elif line.startswith("REASON 1:"): r1=line.replace("REASON 1:","").strip()
                             elif line.startswith("REASON 2:"): r2=line.replace("REASON 2:","").strip()

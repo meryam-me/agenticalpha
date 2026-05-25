@@ -591,7 +591,9 @@ elif page == "🤖 Live Analyzer":
                         dec=sc=conf=r1=r2=r3=""
                         for line in lines:
                             if line.startswith("DECISION:"): dec=line.replace("DECISION:","").strip()
-                            elif line.startswith("SCORE:"): sc=line.replace("SCORE:","").strip()
+                            elif "SCORE:" in line:
+    try: sc=str(int(''.join(filter(str.isdigit, line.split("SCORE:")[-1].strip()))[:3]))
+    except: sc="50"
                             elif line.startswith("CONFIDENCE:"): conf=line.replace("CONFIDENCE:","").strip()
                             elif line.startswith("REASON 1:"): r1=line.replace("REASON 1:","").strip()
                             elif line.startswith("REASON 2:"): r2=line.replace("REASON 2:","").strip()
@@ -1188,11 +1190,15 @@ elif page == "📂 Custom Analysis":
                         dec=sc=conf=r1=r2=r3=kr=alt=""
                         for line in lines:
                             if line.startswith("DECISION:"): dec=line.replace("DECISION:","").strip()
-                            elif line.startswith("SCORE:"): sc=line.replace("SCORE:","").strip()
-                            elif line.startswith("CONFIDENCE:"): conf=line.replace("CONFIDENCE:","").strip()
-                            elif line.startswith("REASON 1:"): r1=line.replace("REASON 1:","").strip()
-                            elif line.startswith("REASON 2:"): r2=line.replace("REASON 2:","").strip()
-                            elif line.startswith("REASON 3:"): r3=line.replace("REASON 3:","").strip()
+                            elif "SCORE:" in line:
+    try: sc=str(int(''.join(filter(str.isdigit, line.split("SCORE:")[-1].strip()))[:3]))
+    except: sc="50"
+                            elif "CONFIDENCE:" in line:
+    try: conf=str(int(''.join(filter(str.isdigit, line.split("CONFIDENCE:")[-1].strip()))[:3]))
+    except: conf="50"
+                            elif "REASON 1:" in line: r1=line.split("REASON 1:")[-1].strip()
+                            elif "REASON 2:" in line: r2=line.split("REASON 2:")[-1].strip()
+                            elif "REASON 3:" in line: r3=line.split("REASON 3:")[-1].strip()
                             elif line.startswith("KEY RISK:"): kr=line.replace("KEY RISK:","").strip()
                             elif line.startswith("ALTERNATIVE:"): alt=line.replace("ALTERNATIVE:","").strip()
 
@@ -1264,19 +1270,6 @@ elif page == "📂 Custom Analysis":
 elif page == "🎤 Jury Demo":
     st.title("🎤 Jury Presentation Demo")
     st.markdown("*Prepared live simulation for thesis defense*")
-    st.markdown("""
-    <div style='background:#fffbeb; border:1px solid #c9a227;
-                border-left:5px solid #c9a227; border-radius:10px;
-                padding:16px 20px; margin-bottom:24px;'>
-        <div style='color:#92400e; font-weight:700; margin-bottom:4px;'>
-            💡 Presentation Tip</div>
-        <div style='color:#92400e; font-size:13px; line-height:1.6;'>
-            Use this page during your jury defense. Pre-filled with WeWork 2019
-            — the most compelling case. One click shows real-time AI simulation.
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-
     c1,c2,c3=st.columns(3)
     with c1: dco=st.text_input("🏢 Company:",value="WeWork")
     with c2: dyr=st.text_input("📅 Year:",value="2019")
@@ -1333,7 +1326,9 @@ elif page == "🎤 Jury Demo":
                         dec=sc=conf=r1=r2=r3=""
                         for line in lines:
                             if line.startswith("DECISION:"): dec=line.replace("DECISION:","").strip()
-                            elif line.startswith("SCORE:"): sc=line.replace("SCORE:","").strip()
+                            elif "SCORE:" in line:
+    try: sc=str(int(''.join(filter(str.isdigit, line.split("SCORE:")[-1].strip()))[:3]))
+    except: sc="50"
                             elif line.startswith("CONFIDENCE:"): conf=line.replace("CONFIDENCE:","").strip()
                             elif line.startswith("REASON 1:"): r1=line.replace("REASON 1:","").strip()
                             elif line.startswith("REASON 2:"): r2=line.replace("REASON 2:","").strip()

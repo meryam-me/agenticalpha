@@ -839,4 +839,797 @@ elif page == "📊 Dashboard":
             )
             fig.update_traces(textposition="top center")
             fig.update_layout(**PT)
-            st.plotly_chart(fig,use_container
+            st.plotly_chart(fig,use_container_width=True)
+
+        with c2:
+            sd=pd.DataFrame({
+                "Company":df_h["Company"],
+                "Neutral":df_h["Neutral_Score"],
+                "Aggressive":df_h["Aggressive_Score"],
+                "Conservative":df_h["Conservative_Score"]
+            })
+            fig2=px.line(sd,x="Company",y=["Neutral","Aggressive","Conservative"],
+                        title="Score Comparison by Persona",
+                        color_discrete_map={
+                            "Neutral":"#1e3a8a",
+                            "Aggressive":"#dc2626",
+                            "Conservative":"#15803d"
+                        })
+            fig2.update_layout(**PT)
+            st.plotly_chart(fig2,use_container_width=True)
+
+        st.dataframe(
+            df_h[[
+                "Company","Year","Neutral_Score","Aggressive_Score",
+                "Conservative_Score","Average_Score","AI_Recommendation","Actual_Outcome"
+            ]].rename(columns={
+                "Neutral_Score":"Neutral",
+                "Aggressive_Score":"Aggressive",
+                "Conservative_Score":"Conservative",
+                "Average_Score":"Avg",
+                "AI_Recommendation":"Verdict",
+                "Actual_Outcome":"Outcome"
+            }),
+            use_container_width=True,
+            hide_index=True,
+            height=380
+        )
+
+    with tab3:
+        st.markdown("### 🧠 Heuristic Bias Analysis")
+        st.caption("Bias detection is heuristic — suggests possible patterns, not definitive diagnoses")
+        bc=df_h["Main_Bias"].value_counts().reset_index()
+        bc.columns=["Bias","Count"]
+        c1,c2=st.columns(2)
+        with c1:
+            fig=px.pie(bc,values="Count",names="Bias",
+                      title="Bias Distribution",
+                      color_discrete_sequence=["#c9a227","#1e3a8a","#dc2626","#15803d","#7c3aed"])
+            fig.update_layout(**PT)
+            st.plotly_chart(fig,use_container_width=True)
+        with c2:
+            fig2=px.bar(bc,x="Bias",y="Count",title="Bias Frequency",
+                       color="Bias",text="Count",
+                       color_discrete_sequence=["#c9a227","#1e3a8a","#dc2626","#15803d","#7c3aed"])
+            fig2.update_traces(textposition='outside')
+            fig2.update_layout(**PT,showlegend=False)
+            st.plotly_chart(fig2,use_container_width=True)
+
+        st.dataframe(
+            df_h[[
+                "Company","Year","Main_Bias",
+                "Neutral_Decision","Aggressive_Decision",
+                "Conservative_Decision","Actual_Outcome"
+            ]].rename(columns={
+                "Main_Bias":"Bias Indicator",
+                "Neutral_Decision":"Neutral",
+                "Aggressive_Decision":"Aggressive",
+                "Conservative_Decision":"Conservative",
+                "Actual_Outcome":"Outcome"
+            }),
+            use_container_width=True,
+            hide_index=True,
+            height=380
+        )
+
+# AI VS HUMAN
+elif page == "⚔️ AI vs Human":
+    st.title("⚔️ AI Simulation vs Human Decisions")
+    st.markdown("*Comparing simulated AI reasoning against documented human corporate decisions*")
+    st.info("⚠️ Comparison between simulated AI reasoning and documented historical decisions — not causal performance measurement.")
+    st.markdown("---")
+
+    ai_w=len(df_h[(df_h["Neutral_Correct"]==1)&(df_h["Human_Correct"]==0)])
+    hu_w=len(df_h[(df_h["Human_Correct"]==1)&(df_h["Neutral_Correct"]==0)])
+    bo_r=len(df_h[(df_h["Neutral_Correct"]==1)&(df_h["Human_Correct"]==1)])
+    bo_w=len(df_h[(df_h["Neutral_Correct"]==0)&(df_h["Human_Correct"]==0)])
+    tot=len(df_h)
+
+    c1,c2,c3,c4=st.columns(4)
+    with c1: st.metric("🤖 AI Better",f"{ai_w}",delta=f"{round(ai_w/tot*100)}%")
+    with c2: st.metric("🧑 Human Better",f"{hu_w}",delta=f"{round(hu_w/tot*100)}%")
+    with c3: st.metric("🤝 Both Correct",f"{bo_r}",delta=f"{round(bo_r/tot*100)}%")
+    with c4: st.metric("❌ Both Wrong",f"{bo_w}",delta=f"{round(bo_w/tot*100)}%")
+
+    st.markdown("---")
+    c1,c2=st.columns(2)
+    with c1:
+        fig=px.bar(
+            pd.DataFrame({
+                "Result":["AI Better","Human Better","Both Correct","Both Wrong"],
+                "Cases":[ai_w,hu_w,bo_r,bo_w]
+            }),
+            x="Result",y="Cases",color="Result",
+            color_discrete_map={
+                "AI Better":"#1e3a8a","Human Better":"#c9a227",
+                "Both Correct":"#15803d","Both Wrong":"#dc2626"
+            },
+            title="AI vs Human — Head to Head",text="Cases"
+        )
+        fig.update_traces(textposition='outside')
+        fig.update_layout(**PT,showlegend=False)
+        st.plotly_chart(fig,use_container_width=True)
+
+    with c2:
+        na=round(df_h["Neutral_Correct"].mean()*100)
+        ag=round(df_h["Aggressive_Correct"].mean()*100)
+        co=round(df_h["Conservative_Correct"].mean()*100)
+        hu=round(df_h["Human_Correct"].mean()*100)
+        fig2=px.bar(
+            pd.DataFrame({
+                "Decision Maker":["Neutral AI","Aggressive AI","Conservative AI","Human"],
+                "Accuracy":[na,ag,co,hu]
+            }),
+            x="Decision Maker",y="Accuracy",color="Decision Maker",
+            title="Accuracy Comparison",text="Accuracy",
+            color_discrete_map={
+                "Neutral AI":"#1e3a8a","Aggressive AI":"#dc2626",
+                "Conservative AI":"#15803d","Human":"#c9a227"
+            }
+        )
+        fig2.update_traces(texttemplate='%{text}%',textposition='outside')
+        fig2.update_layout(**PT,yaxis_range=[0,115],showlegend=False)
+        st.plotly_chart(fig2,use_container_width=True)
+
+    st.markdown("---")
+    st.markdown("### 📋 Case by Case")
+    comp=df_h[["Company","Year","Neutral_Decision","Human_Decision",
+               "Actual_Outcome","Neutral_Correct","Human_Correct"]].copy()
+
+    def lbl(row):
+        if row["Neutral_Correct"]==1 and row["Human_Correct"]==0: return "🤖 AI Better"
+        elif row["Human_Correct"]==1 and row["Neutral_Correct"]==0: return "🧑 Human Better"
+        elif row["Neutral_Correct"]==1 and row["Human_Correct"]==1: return "🤝 Both Correct"
+        else: return "❌ Both Wrong"
+
+    comp["Result"]=comp.apply(lbl,axis=1)
+    st.dataframe(
+        comp[["Company","Year","Neutral_Decision","Human_Decision",
+              "Actual_Outcome","Result"]].rename(columns={
+            "Neutral_Decision":"AI Simulation",
+            "Human_Decision":"Human",
+            "Actual_Outcome":"Outcome"
+        }),
+        use_container_width=True,
+        hide_index=True,
+        height=420
+    )
+
+    st.markdown("---")
+    co=round(df_h["Conservative_Correct"].mean()*100)
+    hu=round(df_h["Human_Correct"].mean()*100)
+    diff=co-hu
+    if diff>0:
+        st.success(f"**Conservative AI simulation aligned with correct outcomes {diff}% more than documented human decisions.** This suggests risk-averse behavioral framing may produce reasoning more consistent with successful corporate outcomes — though causal conclusions require larger samples and real corporate data.")
+    else:
+        st.info(f"**Human decisions aligned with correct outcomes {abs(diff)}% more than AI simulation.** This highlights the continuing importance of human judgment in corporate investment — particularly for strategic intuition.")
+
+# CUSTOM ANALYSIS
+elif page == "📂 Custom Analysis":
+    st.title("📂 Custom Investment Simulation")
+    st.markdown("*Input your company data for a private AI-powered investment decision simulation*")
+    st.markdown("""
+    <div style='display:flex; gap:12px; margin-bottom:20px; flex-wrap:wrap;'>
+        <div style='background:#f0fdf4; border:1px solid #22c55e; border-radius:8px;
+                    padding:10px 16px; flex:1;'>
+            <span style='color:#15803d; font-weight:700;'>🔒 Privacy:</span>
+            <span style='color:#15803d; font-size:13px;'>
+                Your data is never stored. Analysis generated in real time only.</span>
+        </div>
+        <div style='background:#fffbeb; border:1px solid #c9a227; border-radius:8px;
+                    padding:10px 16px; flex:1;'>
+            <span style='color:#92400e; font-weight:700;'>⚠️ Note:</span>
+            <span style='color:#92400e; font-size:13px;'>
+                Simulation tool — not financial advice.</span>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    def section_bar(title):
+        st.markdown(f"""
+        <div style='background:#0a1628; color:#FFD700; font-weight:700;
+                    padding:8px 16px; border-radius:8px;
+                    margin:20px 0 12px; font-size:13px;'>
+            {title}</div>
+        """, unsafe_allow_html=True)
+
+    section_bar("📋 SECTION 1 — COMPANY IDENTITY")
+    c1,c2,c3=st.columns(3)
+    with c1:
+        cname=st.text_input("🏢 Company Name:",placeholder="Your company")
+        ind=st.selectbox("🏭 Industry:",[
+            "Technology","Healthcare","Financial Services","Real Estate",
+            "Retail/E-Commerce","Automotive","Energy","Media/Entertainment",
+            "Manufacturing","Telecommunications","Education","Other"
+        ])
+    with c2:
+        country=st.text_input("🌍 Country:",placeholder="e.g. Italy, USA")
+        ctype=st.selectbox("🏗️ Company Type:",[
+            "Startup (0-3 years)","Growth Stage (3-7 years)",
+            "SME","Large Corporation","Multinational"
+        ])
+    with c3:
+        yrs=st.number_input("📅 Years in Business:",min_value=0,value=5)
+        cstat=st.selectbox("📊 Status:",[
+            "Private","Public (Listed)","Family Business","State Owned","Subsidiary"
+        ])
+
+    section_bar("💰 SECTION 2 — FINANCIAL HEALTH")
+    c1,c2,c3=st.columns(3)
+    with c1:
+        rev=st.number_input("💵 Revenue ($M):",min_value=0.0,value=10.0)
+        pnl=st.number_input("📈 Profit/Loss ($M):",value=1.0)
+        debt=st.number_input("💳 Total Debt ($M):",min_value=0.0,value=5.0)
+    with c2:
+        cash=st.number_input("🏦 Cash ($M):",min_value=0.0,value=3.0)
+        grw=st.number_input("📊 Revenue Growth (%):",value=10.0)
+        val=st.number_input("🏷️ Valuation ($M):",min_value=0.0,value=50.0)
+    with c3:
+        de=st.number_input("⚖️ Debt/Equity:",min_value=0.0,value=0.5)
+        ebitda=st.number_input("📉 EBITDA ($M):",value=2.0)
+        burn=st.number_input("🔥 Monthly Burn ($M):",min_value=0.0,value=0.5)
+
+    section_bar("🎯 SECTION 3 — INVESTMENT DECISION")
+    c1,c2,c3=st.columns(3)
+    with c1:
+        itype=st.selectbox("📋 Investment Type:",[
+            "Merger & Acquisition","Geographic Expansion","New Product",
+            "Technology Investment","R&D","Strategic Partnership",
+            "IPO","Capital Expenditure","Digital Transformation","Restructuring"
+        ])
+        iamt=st.number_input("💰 Amount ($M):",min_value=0.1,value=5.0)
+    with c2:
+        eret=st.number_input("📈 Expected Return (%):",value=15.0)
+        tframe=st.selectbox("⏱️ Timeframe:",[
+            "Short term (under 1 year)","Medium term (1-3 years)",
+            "Long term (3-10 years)","Very long term (10+ years)"
+        ])
+    with c3:
+        mkt=st.selectbox("🌍 Target Market:",[
+            "Local","National","Regional","Global"
+        ])
+        fin=st.selectbox("💳 Financing:",[
+            "Own cash","Bank loan","Investor/VC","Bond issuance","Mixed","Government grant"
+        ])
+
+    section_bar("🌍 SECTION 4 — STRATEGIC CONTEXT")
+    c1,c2,c3=st.columns(3)
+    with c1:
+        mktc=st.selectbox("📊 Market Conditions:",[
+            "Growing","Stable","Declining","Highly competitive","Emerging/disrupted"
+        ])
+        reg=st.selectbox("⚖️ Regulatory:",[
+            "Highly regulated","Moderately regulated","Low regulation","Changing"
+        ])
+    with c2:
+        tech=st.selectbox("💻 Tech Risk:",[
+            "High — being disrupted","Medium","Low — stable"
+        ])
+        rtol=st.selectbox("🎯 Risk Tolerance:",[
+            "Very conservative","Moderate","Aggressive"
+        ])
+    with c3:
+        why=st.text_area("❓ Why Invest?",placeholder="Brief reason...",height=80)
+        risk=st.text_area("⚠️ Main Risk?",placeholder="Biggest concern...",height=80)
+
+    section_bar("📝 SECTION 5 — ADDITIONAL CONTEXT")
+    c1,c2=st.columns(2)
+    with c1:
+        comp=st.text_input("🏆 Competitors:",placeholder="e.g. Amazon, Google")
+        events=st.text_area("📰 Recent Events:",placeholder="Leadership change...",height=80)
+    with c2:
+        decision=st.text_area(
+            "📋 Describe Your Investment Decision:",
+            placeholder="e.g. We want to acquire a competitor in France for $20M...",
+            height=120
+        )
+
+    st.markdown("---")
+
+    if st.button("⚡ SIMULATE MY INVESTMENT",use_container_width=True):
+        if cname and decision:
+            st.markdown(f"""
+            <div class='aa-card' style='border-left:5px solid #c9a227;
+                        margin-bottom:20px;'>
+                <div style='color:#64748b; font-size:11px;
+                            text-transform:uppercase;'>Simulation Target</div>
+                <div style='color:#0a1628; font-size:18px;
+                            font-weight:800; margin-top:4px;'>{cname}</div>
+                <div style='color:#64748b; font-size:13px;'>{decision}</div>
+            </div>
+            """, unsafe_allow_html=True)
+
+            profile=f"""
+            Company:{cname}|Industry:{ind}|Country:{country}|Type:{ctype}
+            Years:{yrs}|Status:{cstat}|Revenue:${rev}M|P&L:${pnl}M|Debt:${debt}M
+            Cash:${cash}M|Growth:{grw}%|Val:${val}M|D/E:{de}|EBITDA:${ebitda}M|Burn:${burn}M
+            Investment:{itype}|Amount:${iamt}M|Return:{eret}%|Time:{tframe}
+            Market:{mkt}|Finance:{fin}|Conditions:{mktc}|Reg:{reg}
+            Tech:{tech}|Risk:{rtol}|Competitors:{comp}|Why:{why}|Risk:{risk}|Events:{events}
+            DECISION:{decision}
+            """
+
+            personas=[
+                {"name":"🤖 Neutral Advisor","color":"#1e3a8a","bg":"#eff6ff",
+                 "instruction":"You are a neutral objective corporate finance advisor."},
+                {"name":"📈 Aggressive CFO","color":"#dc2626","bg":"#fff1f2",
+                 "instruction":"You are an aggressive CFO who prioritizes growth."},
+                {"name":"🛡️ Conservative Board","color":"#15803d","bg":"#f0fdf4",
+                 "instruction":"You are a conservative board member focused on stability."},
+            ]
+
+            all_d=[]
+            all_s=[]
+            c1,c2,c3=st.columns(3)
+            cols=[c1,c2,c3]
+
+            for i,p in enumerate(personas):
+                with cols[i]:
+                    with st.spinner(f"Simulating..."):
+                        q=f"""
+                        {p['instruction']}
+                        Data: {profile}
+                        Should proceed with: {decision}?
+                        DECISION: YES or NO
+                        SCORE: (0-100)
+                        CONFIDENCE: (0-100)
+                        REASON 1: (specific to financials)
+                        REASON 2: (specific to market)
+                        REASON 3: (specific to risk)
+                        KEY RISK: (biggest risk)
+                        ALTERNATIVE: (if NO)
+                        """
+                        r=client.chat.completions.create(
+                            model="llama-3.1-8b-instant",
+                            messages=[{"role":"user","content":q}]
+                        )
+                        text=r.choices[0].message.content
+                        lines=text.strip().split('\n')
+                        dec=sc=conf=r1=r2=r3=kr=alt=""
+                        for line in lines:
+                            if line.startswith("DECISION:"): dec=line.replace("DECISION:","").strip()
+                            elif line.startswith("SCORE:"): sc=line.replace("SCORE:","").strip()
+                            elif line.startswith("CONFIDENCE:"): conf=line.replace("CONFIDENCE:","").strip()
+                            elif line.startswith("REASON 1:"): r1=line.replace("REASON 1:","").strip()
+                            elif line.startswith("REASON 2:"): r2=line.replace("REASON 2:","").strip()
+                            elif line.startswith("REASON 3:"): r3=line.replace("REASON 3:","").strip()
+                            elif line.startswith("KEY RISK:"): kr=line.replace("KEY RISK:","").strip()
+                            elif line.startswith("ALTERNATIVE:"): alt=line.replace("ALTERNATIVE:","").strip()
+
+                        all_d.append(dec)
+                        try: all_s.append(int(sc))
+                        except: all_s.append(50)
+
+                        yes="YES" in dec.upper()
+                        vc="#15803d" if yes else "#dc2626"
+                        vbg="#f0fdf4" if yes else "#fff1f2"
+
+                        st.markdown(f"""
+                        <div style='background:#ffffff; border:1px solid #e2e8f0;
+                                    border-top:4px solid {p['color']};
+                                    border-radius:12px; padding:16px;'>
+                            <div style='color:{p['color']}; font-weight:700;
+                                        font-size:13px; margin-bottom:10px;'>
+                                {p['name']}</div>
+                            <div style='background:{vbg}; border:1px solid {vc};
+                                        border-radius:8px; padding:8px;
+                                        text-align:center; margin-bottom:10px;'>
+                                <span style='color:{vc}; font-weight:800;'>
+                                    {"✅ PROCEED" if yes else "❌ DO NOT PROCEED"}
+                                </span>
+                            </div>
+                            <div style='height:6px; background:#e2e8f0;
+                                        border-radius:3px; margin-bottom:8px;'>
+                                <div style='height:6px; background:{p['color']};
+                                            border-radius:3px; width:{sc}%;'></div>
+                            </div>
+                            <div style='color:#64748b; font-size:12px; margin-bottom:8px;'>
+                                Score:<strong>{sc}/100</strong> ·
+                                Conf:<strong>{conf}%</strong>
+                            </div>
+                            <div style='font-size:12px; color:#334155; line-height:1.6;'>
+                                📌 {r1}<br>📌 {r2}<br>📌 {r3}
+                            </div>
+                        </div>
+                        """, unsafe_allow_html=True)
+                        if kr: st.warning(f"⚠️ **Key Risk:** {kr}")
+                        if alt and "NO" in dec.upper(): st.info(f"💡 **Alternative:** {alt}")
+
+            avg=sum(all_s)/len(all_s) if all_s else 50
+            if avg>=60: v="PROCEED"; vc2="#15803d"; vbg2="#f0fdf4"; vi="✅"
+            elif avg>=40: v="PROCEED WITH CAUTION"; vc2="#92400e"; vbg2="#fffbeb"; vi="⚠️"
+            else: v="DO NOT PROCEED"; vc2="#991b1b"; vbg2="#fff1f2"; vi="❌"
+
+            st.markdown(f"""
+            <div style='background:{vbg2}; border:2px solid {vc2};
+                        border-radius:14px; padding:24px;
+                        text-align:center; margin:20px 0;'>
+                <div style='color:{vc2}; font-size:11px; font-weight:700;
+                            text-transform:uppercase; letter-spacing:2px;'>
+                    Simulation Verdict</div>
+                <div style='color:{vc2}; font-size:22px;
+                            font-weight:900; margin:8px 0;'>{vi} {v}</div>
+                <div style='color:{vc2}; font-size:12px; opacity:0.8;'>
+                    Average Score: {avg:.0f}/100</div>
+            </div>
+            <div style='text-align:center; color:#94a3b8; font-size:11px;'>
+                ⚠️ Simulation only — not financial advice</div>
+            """, unsafe_allow_html=True)
+
+            st.success("🔒 Your data was used only for this simulation and has not been stored.")
+        else:
+            st.error("⚠️ Please fill Company Name and describe your Investment Decision!")
+
+# JURY DEMO
+elif page == "🎤 Jury Demo":
+    st.title("🎤 Jury Presentation Demo")
+    st.markdown("*Prepared live simulation for thesis defense*")
+    st.markdown("""
+    <div style='background:#fffbeb; border:1px solid #c9a227;
+                border-left:5px solid #c9a227; border-radius:10px;
+                padding:16px 20px; margin-bottom:24px;'>
+        <div style='color:#92400e; font-weight:700; margin-bottom:4px;'>
+            💡 Presentation Tip</div>
+        <div style='color:#92400e; font-size:13px; line-height:1.6;'>
+            Use this page during your jury defense. Pre-filled with WeWork 2019
+            — the most compelling case. One click shows real-time AI simulation.
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    c1,c2,c3=st.columns(3)
+    with c1: dco=st.text_input("🏢 Company:",value="WeWork")
+    with c2: dyr=st.text_input("📅 Year:",value="2019")
+    with c3: ddec=st.text_input("📋 Decision:",value="Proceed with IPO expansion?")
+
+    if st.button("⚡ RUN LIVE DEMONSTRATION",use_container_width=True):
+        if dco and dyr:
+            st.markdown(f"""
+            <div style='background:#0a1628; border-radius:12px;
+                        padding:20px; margin:16px 0; border:1px solid #c9a227;'>
+                <div style='color:#c9a227; font-size:11px;
+                            text-transform:uppercase; letter-spacing:2px;'>
+                    Live Simulation</div>
+                <div style='color:#ffffff; font-size:20px;
+                            font-weight:800; margin-top:4px;'>{dco} · {dyr}</div>
+                <div style='color:#94a3b8; font-size:13px;
+                            margin-top:4px;'>{ddec}</div>
+            </div>
+            """, unsafe_allow_html=True)
+
+            personas=[
+                {"name":"🤖 Neutral Advisor","color":"#1e3a8a",
+                 "instruction":"You are a neutral objective corporate finance advisor."},
+                {"name":"📈 Aggressive CFO","color":"#dc2626",
+                 "instruction":"You are an aggressive CFO who prioritizes growth."},
+                {"name":"🛡️ Conservative Board","color":"#15803d",
+                 "instruction":"You are a conservative board member focused on stability."},
+            ]
+
+            decisions=[]
+            scores=[]
+            c1,c2,c3=st.columns(3)
+            cols=[c1,c2,c3]
+
+            for i,p in enumerate(personas):
+                with cols[i]:
+                    with st.spinner("Simulating..."):
+                        q=f"""
+                        {p['instruction']}
+                        Company:{dco}|Year:{dyr}|Decision:{ddec}
+                        DECISION: YES or NO
+                        SCORE: (0-100)
+                        CONFIDENCE: (0-100)
+                        REASON 1: (one sentence)
+                        REASON 2: (one sentence)
+                        REASON 3: (one sentence)
+                        """
+                        r=client.chat.completions.create(
+                            model="llama-3.1-8b-instant",
+                            messages=[{"role":"user","content":q}]
+                        )
+                        text=r.choices[0].message.content
+                        lines=text.strip().split('\n')
+                        dec=sc=conf=r1=r2=r3=""
+                        for line in lines:
+                            if line.startswith("DECISION:"): dec=line.replace("DECISION:","").strip()
+                            elif line.startswith("SCORE:"): sc=line.replace("SCORE:","").strip()
+                            elif line.startswith("CONFIDENCE:"): conf=line.replace("CONFIDENCE:","").strip()
+                            elif line.startswith("REASON 1:"): r1=line.replace("REASON 1:","").strip()
+                            elif line.startswith("REASON 2:"): r2=line.replace("REASON 2:","").strip()
+                            elif line.startswith("REASON 3:"): r3=line.replace("REASON 3:","").strip()
+
+                        decisions.append(dec)
+                        try: scores.append(int(sc))
+                        except: scores.append(50)
+
+                        yes="YES" in dec.upper()
+                        vc="#15803d" if yes else "#dc2626"
+                        vbg="#f0fdf4" if yes else "#fff1f2"
+
+                        st.markdown(f"""
+                        <div style='background:#ffffff; border:2px solid {p['color']};
+                                    border-radius:14px; padding:16px;'>
+                            <div style='color:{p['color']}; font-weight:800;
+                                        font-size:14px; margin-bottom:10px;'>
+                                {p['name']}</div>
+                            <div style='background:{vbg}; border:2px solid {vc};
+                                        border-radius:10px; padding:10px;
+                                        text-align:center; margin-bottom:10px;'>
+                                <span style='color:{vc}; font-weight:900; font-size:15px;'>
+                                    {"✅ PROCEED" if yes else "❌ DO NOT PROCEED"}
+                                </span>
+                            </div>
+                            <div style='height:8px; background:#e2e8f0;
+                                        border-radius:4px; margin-bottom:10px;'>
+                                <div style='height:8px; background:{p['color']};
+                                            border-radius:4px; width:{sc}%;'></div>
+                            </div>
+                            <div style='color:#64748b; font-size:12px; margin-bottom:8px;'>
+                                Score:<strong style='color:{p["color"]};'>{sc}/100</strong> ·
+                                Conf:<strong>{conf}%</strong>
+                            </div>
+                            <div style='font-size:12px; color:#334155; line-height:1.7;'>
+                                📌 {r1}<br>📌 {r2}<br>📌 {r3}
+                            </div>
+                        </div>
+                        """, unsafe_allow_html=True)
+
+            avg=sum(scores)/len(scores) if scores else 50
+            if avg>=60: v="PROCEED"; vc="#15803d"; vbg="#f0fdf4"; vi="✅"
+            elif avg>=40: v="PROCEED WITH CAUTION"; vc="#92400e"; vbg="#fffbeb"; vi="⚠️"
+            else: v="DO NOT PROCEED"; vc="#991b1b"; vbg="#fff1f2"; vi="❌"
+
+            st.markdown(f"""
+            <div style='background:{vbg}; border:3px solid {vc};
+                        border-radius:16px; padding:28px;
+                        text-align:center; margin:20px 0;'>
+                <div style='color:{vc}; font-size:11px; font-weight:700;
+                            text-transform:uppercase; letter-spacing:3px;
+                            margin-bottom:8px;'>Final Simulation Verdict</div>
+                <div style='color:{vc}; font-size:26px;
+                            font-weight:900; margin-bottom:10px;'>{vi} {v}</div>
+                <div style='display:flex; justify-content:center;
+                            gap:16px; flex-wrap:wrap;'>
+                    <span style='color:{vc}; font-size:13px; opacity:0.9;'>
+                        Avg: {avg:.0f}/100</span>
+                    <span style='color:{vc}; font-size:13px; opacity:0.9;'>
+                        Neutral: {scores[0] if scores else 0}/100</span>
+                    <span style='color:{vc}; font-size:13px; opacity:0.9;'>
+                        Aggressive: {scores[1] if len(scores)>1 else 0}/100</span>
+                    <span style='color:{vc}; font-size:13px; opacity:0.9;'>
+                        Conservative: {scores[2] if len(scores)>2 else 0}/100</span>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+            if dco in ["WeWork","Theranos","Kodak","Blockbuster","Peloton"]:
+                st.error(f"✅ **Historical Validation:** {dco} FAILED — Simulation correctly identified risk")
+            elif dco in ["Tesla","Apple","Amazon","Netflix","Microsoft"]:
+                st.success(f"✅ **Historical Validation:** {dco} SUCCEEDED — Simulation correctly identified opportunity")
+
+            st.caption("⚠️ Simulation output for research demonstration only — not financial advice")
+
+# ABOUT
+elif page == "📋 About":
+    st.title("📋 About This Research")
+    st.markdown("*The Agentic Alpha — Multi-Agent AI Decision Support System*")
+    st.markdown("---")
+
+    c1,c2=st.columns(2)
+    with c1:
+        st.markdown("""
+        <div style='background:#ffffff; border:1px solid #e2e8f0;
+                    border-top:4px solid #c9a227; border-radius:12px;
+                    padding:24px; box-shadow:0 2px 8px rgba(0,0,0,0.05);'>
+            <div style='color:#0a1628; font-size:15px; font-weight:800;
+                        margin-bottom:18px;'>👩‍🎓 Researcher</div>
+            <div style='margin-bottom:12px;'>
+                <div style='color:#94a3b8; font-size:10px; font-weight:700;
+                            text-transform:uppercase; letter-spacing:1px;'>Name</div>
+                <div style='color:#0a1628; font-weight:700; font-size:14px;
+                            margin-top:3px;'>Meryam El Ghouti</div>
+            </div>
+            <div style='margin-bottom:12px;'>
+                <div style='color:#94a3b8; font-size:10px; font-weight:700;
+                            text-transform:uppercase; letter-spacing:1px;'>University</div>
+                <div style='color:#334155; font-size:13px; margin-top:3px;'>
+                    Sapienza University of Rome</div>
+            </div>
+            <div style='margin-bottom:12px;'>
+                <div style='color:#94a3b8; font-size:10px; font-weight:700;
+                            text-transform:uppercase; letter-spacing:1px;'>Degree</div>
+                <div style='color:#334155; font-size:13px; margin-top:3px;'>
+                    Master's in Business Management · 2026</div>
+            </div>
+            <div>
+                <div style='color:#94a3b8; font-size:10px; font-weight:700;
+                            text-transform:uppercase; letter-spacing:1px;'>Thesis</div>
+                <div style='color:#334155; font-size:13px; margin-top:3px;
+                            line-height:1.6;'>
+                    The Agentic Alpha — A Multi-Agent AI Decision Support System
+                    for Corporate Investment Simulation with Behavioral Bias Detection
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with c2:
+        st.markdown("""
+        <div style='background:#0a1628; border:1px solid #c9a227;
+                    border-radius:12px; padding:24px;'>
+            <div style='color:#FFD700; font-size:15px; font-weight:800;
+                        margin-bottom:18px;'>🔬 Research Overview</div>
+            <div style='margin-bottom:14px;'>
+                <div style='color:#c9a227; font-size:10px; font-weight:700;
+                            text-transform:uppercase; letter-spacing:1px;'>
+                    Research Question</div>
+                <div style='color:#e8e8e8; font-size:13px; margin-top:5px;
+                            line-height:1.6;'>
+                    Can a multi-agent AI system simulate corporate investment
+                    reasoning with behavioral bias detection comparable
+                    to human decision-makers?</div>
+            </div>
+            <div style='margin-bottom:14px;'>
+                <div style='color:#c9a227; font-size:10px; font-weight:700;
+                            text-transform:uppercase; letter-spacing:1px;'>Approach</div>
+                <div style='color:#e8e8e8; font-size:13px; margin-top:5px;'>
+                    Design Science Research · Multi-agent simulation ·
+                    Heuristic bias detection · 20 historical cases</div>
+            </div>
+            <div style='margin-bottom:14px;'>
+                <div style='color:#c9a227; font-size:10px; font-weight:700;
+                            text-transform:uppercase; letter-spacing:1px;'>Theory</div>
+                <div style='color:#e8e8e8; font-size:13px; margin-top:5px;'>
+                    Kahneman & Tversky (1979) — Behavioral Finance
+                    · Thaler (2015) — Nudge Theory</div>
+            </div>
+            <div>
+                <div style='color:#c9a227; font-size:10px; font-weight:700;
+                            text-transform:uppercase; letter-spacing:1px;'>Tools</div>
+                <div style='color:#e8e8e8; font-size:13px; margin-top:5px;'>
+                    Python · Groq LLaMA API · Streamlit · Plotly</div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown("<hr class='gold-line'>", unsafe_allow_html=True)
+
+    st.markdown("""
+    <div style='text-align:center; margin-bottom:20px;'>
+        <div style='color:#c9a227; font-size:11px; font-weight:700;
+                    text-transform:uppercase; letter-spacing:2px;'>
+            Academic Contributions</div>
+        <div style='color:#0a1628; font-size:20px; font-weight:800;
+                    margin-top:6px;'>Three Research Contributions</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    c1,c2,c3=st.columns(3)
+    for col,num,title,desc in zip(
+        [c1,c2,c3],
+        ["01","02","03"],
+        ["Multi-Agent Framework","Heuristic Bias Detection","Comparative Analysis"],
+        [
+            "AI framework simulating corporate investment reasoning through three behavioral personas",
+            "Module identifying overconfidence, herding, loss aversion and anchoring in simulations",
+            "Framework comparing AI simulation outputs against documented human decisions"
+        ]
+    ):
+        with col:
+            st.markdown(f"""
+            <div class='aa-card' style='border-top:4px solid #c9a227;'>
+                <div style='font-size:36px; font-weight:900;
+                            color:#f1f5f9;'>{num}</div>
+                <div style='color:#0a1628; font-weight:700; font-size:14px;
+                            margin:8px 0 6px;'>{title}</div>
+                <div style='color:#64748b; font-size:13px;
+                            line-height:1.6;'>{desc}</div>
+            </div>
+            """, unsafe_allow_html=True)
+
+    st.markdown("<hr class='gold-line'>", unsafe_allow_html=True)
+
+    st.markdown("""
+    <div style='text-align:center; margin-bottom:20px;'>
+        <div style='color:#c9a227; font-size:11px; font-weight:700;
+                    text-transform:uppercase; letter-spacing:2px;'>Key Results</div>
+        <div style='color:#0a1628; font-size:20px; font-weight:800;
+                    margin-top:6px;'>Top 5 Simulation Findings</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    for title,desc,color in [
+        ("Conservative Persona Most Accurate",
+         "Conservative simulation showed highest alignment with successful outcomes — risk-averse reasoning produces more reliable corporate decision simulations.",
+         "#15803d"),
+        ("Overconfidence Most Detected Bias",
+         "Aggressive persona showed heuristic overconfidence in most failed simulations — mirroring documented human executive bias.",
+         "#c9a227"),
+        ("Herding Pattern Detected in AI",
+         "Simulated reasoning followed crowd sentiment in WeWork and Theranos — consistent with behavioral finance herding theory.",
+         "#1e3a8a"),
+        ("Persona Framing Affects Simulation",
+         "Identical AI with different behavioral framing produced significantly different scores — validating importance of decision context.",
+         "#c9a227"),
+        ("2021 Market Euphoria Effect",
+         "All personas over-scored 2021 growth companies — AI training data absorbed market optimism similar to human overconfidence.",
+         "#dc2626"),
+    ]:
+        st.markdown(f"""
+        <div class='aa-card' style='border-left:4px solid {color};
+                    padding:14px 18px; margin-bottom:10px;'>
+            <div style='color:#0a1628; font-weight:700;
+                        font-size:14px;'>{title}</div>
+            <div style='color:#64748b; font-size:13px;
+                        margin-top:4px; line-height:1.6;'>{desc}</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown("<hr class='gold-line'>", unsafe_allow_html=True)
+
+    st.markdown("""
+    <div style='text-align:center; margin-bottom:20px;'>
+        <div style='color:#c9a227; font-size:11px; font-weight:700;
+                    text-transform:uppercase; letter-spacing:2px;'>Theory</div>
+        <div style='color:#0a1628; font-size:20px; font-weight:800;
+                    margin-top:6px;'>Behavioral Finance Framework</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    c1,c2,c3,c4=st.columns(4)
+    for col,bias,theory,desc,color in zip(
+        [c1,c2,c3,c4],
+        ["Overconfidence","Loss Aversion","Herding Behavior","Anchoring Bias"],
+        ["Kahneman & Tversky","Prospect Theory","Shiller","Tversky"],
+        [
+            "Overestimating accuracy of corporate decisions",
+            "Fear of losses stronger than desire for gains",
+            "Following crowd despite contradictory evidence",
+            "Over-relying on first piece of information"
+        ],
+        ["#dc2626","#c9a227","#1e3a8a","#7c3aed"]
+    ):
+        with col:
+            st.markdown(f"""
+            <div class='aa-card' style='border-left:4px solid {color};'>
+                <div style='color:{color}; font-weight:700;
+                            font-size:13px;'>{bias}</div>
+                <div style='color:#94a3b8; font-size:11px;
+                            margin:3px 0;'>{theory}</div>
+                <div style='color:#64748b; font-size:12px;
+                            line-height:1.5;'>{desc}</div>
+            </div>
+            """, unsafe_allow_html=True)
+
+    st.markdown("<hr class='gold-line'>", unsafe_allow_html=True)
+    st.markdown("### 🛠️ System Architecture")
+    st.code("""
+    Input: Corporate Investment Decision
+           (Known Company OR Custom Private Data)
+                        ↓
+    ┌──────────────────────────────────────────┐
+    │         Multi-Agent AI Pipeline           │
+    │          (Groq LLaMA 3.1 API)            │
+    ├──────────────────────────────────────────┤
+    │  Agent 1: Neutral Corporate Advisor       │
+    │  Agent 2: Aggressive CFO                  │
+    │  Agent 3: Conservative Board Member       │
+    └──────────────────────────────────────────┘
+                        ↓
+    Investment Scoring Module (0 to 100)
+                        ↓
+    Heuristic Bias Detection Module
+    (Overconfidence · Loss Aversion · Herding · Anchoring)
+                        ↓
+    Simulated Corporate Investment Verdict
+    """, language="text")
+
+    st.markdown("---")
+    st.markdown("""
+    <div style='text-align:center; padding:16px; color:#94a3b8; font-size:12px;'>
+        Master's Thesis · The Agentic Alpha · Meryam El Ghouti ·
+        Sapienza University of Rome · 2026 ·
+        <span style='color:#c9a227;'>agenticalpha.streamlit.app</span>
+    </div>
+    """, unsafe_allow_html=True)

@@ -339,13 +339,15 @@ def parse_response(text):
             dec = l.split("DECISION:")[-1].strip()
         elif "SCORE:" in l:
             try:
-                nums = ''.join(filter(str.isdigit, l.split("SCORE:")[-1].strip()))
+                nums = ''.join(filter(str.isdigit,
+                               l.split("SCORE:")[-1].strip()))
                 sc = str(int(nums[:3])) if nums else "50"
             except:
                 sc = "50"
         elif "CONFIDENCE:" in l:
             try:
-                nums = ''.join(filter(str.isdigit, l.split("CONFIDENCE:")[-1].strip()))
+                nums = ''.join(filter(str.isdigit,
+                               l.split("CONFIDENCE:")[-1].strip()))
                 conf = str(int(nums[:3])) if nums else "50"
             except:
                 conf = "50"
@@ -431,7 +433,7 @@ PERSONAS = [
      "instruction":"You are a conservative board member who prioritizes stability and risk management."},
 ]
 
-# HOME
+# ── HOME ─────────────────────────────────────────────
 if page == "⚡ Home":
     st.markdown("""
     <div style='background:linear-gradient(135deg,#0a1628,#1a3a6b);
@@ -608,7 +610,7 @@ if page == "⚡ Home":
     """, unsafe_allow_html=True)
     st.info("👈 Use the sidebar navigation to get started")
 
-# LIVE ANALYZER
+# ── LIVE ANALYZER ────────────────────────────────────
 elif page == "🤖 Live Analyzer":
     st.title("🤖 Live Corporate Investment Simulator")
     st.markdown(
@@ -758,11 +760,12 @@ EXPLANATION: (one sentence)
         else:
             st.error("⚠️ Please enter both company name and year!")
 
-# DASHBOARD
+# ── DASHBOARD ────────────────────────────────────────
 elif page == "📊 Dashboard":
     st.title("📊 Research Dashboard")
     st.markdown(
-        "*Simulation results from 19 confirmed corporate investment cases (2010–2024)*"
+        "*Simulation results from 19 confirmed cases (2010–2024) · "
+        "1 ongoing case excluded from analysis*"
     )
     st.info(
         "⚠️ Results represent simulated decision reasoning — "
@@ -784,6 +787,10 @@ elif page == "📊 Dashboard":
         with c3: st.metric("🛡️ Conservative",f"{co}%")
         with c4: st.metric("🧑 Human",f"{hu}%")
 
+        st.caption(
+            "⚠️ Note: OpenAI 2025 case excluded from analysis — "
+            "outcome pending confirmation."
+        )
         st.markdown("---")
         c1,c2 = st.columns(2)
         with c1:
@@ -892,10 +899,7 @@ elif page == "📊 Dashboard":
             fig = px.scatter(
                 df_h,x="Average_Score",y="Neutral_Correct",text="Company",
                 title="Higher Score = Better Decision?",
-                labels={
-                    "Average_Score":"Avg Score",
-                    "Neutral_Correct":"Correct"
-                },
+                labels={"Average_Score":"Avg Score","Neutral_Correct":"Correct"},
                 color="Actual_Outcome",size="Average_Score",
                 color_discrete_map={
                     "Success":"#15803d","Failed":"#dc2626","Mixed":"#c9a227"
@@ -986,11 +990,12 @@ elif page == "📊 Dashboard":
             height=380
         )
 
-# AI VS HUMAN
+# ── AI VS HUMAN ──────────────────────────────────────
 elif page == "⚔️ AI vs Human":
     st.title("⚔️ AI Simulation vs Human Decisions")
     st.markdown(
-        "*Comparing simulated AI reasoning against documented human corporate decisions*"
+        "*Comparing simulated AI reasoning against documented "
+        "human corporate decisions*"
     )
     st.info(
         "⚠️ Comparison between simulated AI reasoning and documented "
@@ -1053,6 +1058,8 @@ elif page == "⚔️ AI vs Human":
 
     st.markdown("---")
     st.markdown("### 📋 Case by Case Comparison")
+    st.caption("Based on 19 confirmed cases — OpenAI 2025 excluded (ongoing)")
+
     comp = df_h[[
         "Company","Year","Neutral_Decision","Human_Decision",
         "Actual_Outcome","Neutral_Correct","Human_Correct"
@@ -1084,6 +1091,26 @@ elif page == "⚔️ AI vs Human":
     )
 
     st.markdown("---")
+    st.markdown("### 🔄 Ongoing Case — Excluded from Accuracy Analysis")
+    st.dataframe(
+        pd.DataFrame({
+            "Company":["OpenAI"],
+            "Year":[2025],
+            "AI Simulation":["PROCEED"],
+            "Human Decision":["Proceeding"],
+            "Outcome":["🔄 Ongoing — outcome not yet confirmed"],
+            "Result":["⏳ Cannot evaluate"]
+        }),
+        use_container_width=True,
+        hide_index=True
+    )
+    st.info(
+        "⚠️ OpenAI 2025 was simulated by the AI system but excluded "
+        "from accuracy analysis as the outcome remains unconfirmed "
+        "at the time of this research."
+    )
+
+    st.markdown("---")
     co2 = round(df_h["Conservative_Correct"].mean()*100)
     hu2 = round(df_h["Human_Correct"].mean()*100)
     diff = co2 - hu2
@@ -1091,24 +1118,25 @@ elif page == "⚔️ AI vs Human":
         st.success(
             f"**Conservative AI simulation aligned with correct outcomes "
             f"{diff}% more than documented human decisions.** "
-            f"This suggests risk-averse behavioral framing may produce reasoning "
-            f"more consistent with successful corporate outcomes — though causal "
-            f"conclusions require larger samples and real corporate data."
+            f"This suggests risk-averse behavioral framing may produce "
+            f"reasoning more consistent with successful corporate outcomes "
+            f"— though causal conclusions require larger samples and "
+            f"real corporate data."
         )
     else:
         st.info(
             f"**Human decisions aligned with correct outcomes "
             f"{abs(diff)}% more than AI simulation.** "
-            f"This highlights the continuing importance of human judgment in "
-            f"corporate investment — particularly for strategic intuition."
+            f"This highlights the continuing importance of human judgment "
+            f"in corporate investment — particularly for strategic intuition."
         )
 
-# CUSTOM ANALYSIS
+# ── CUSTOM ANALYSIS ──────────────────────────────────
 elif page == "📂 Custom Analysis":
     st.title("📂 Custom Investment Simulation")
     st.markdown(
-        "*Input your company data for a private AI-powered investment "
-        "decision simulation*"
+        "*Input your company data for a private AI-powered "
+        "investment decision simulation*"
     )
     st.markdown("""
     <div style='display:flex; gap:12px; margin-bottom:20px; flex-wrap:wrap;'>
@@ -1190,7 +1218,8 @@ elif page == "📂 Custom Analysis":
             "Long term (3-10 years)","Very long term (10+ years)"
         ])
     with c3:
-        mkt = st.selectbox("🌍 Target Market:",["Local","National","Regional","Global"])
+        mkt = st.selectbox("🌍 Target Market:",
+                          ["Local","National","Regional","Global"])
         fin = st.selectbox("💳 Financing:",[
             "Own cash","Bank loan","Investor/VC",
             "Bond issuance","Mixed","Government grant"
@@ -1230,7 +1259,7 @@ elif page == "📂 Custom Analysis":
     with c2:
         decision = st.text_area(
             "📋 Describe Your Investment Decision:",
-            placeholder="e.g. We want to acquire a competitor in France for $20M...",
+            placeholder="e.g. We want to acquire a competitor for $20M...",
             height=120
         )
 
@@ -1250,15 +1279,16 @@ elif page == "📂 Custom Analysis":
             """, unsafe_allow_html=True)
 
             profile = (
-                f"Company:{cname}|Industry:{ind}|Country:{country}|Type:{ctype}|"
-                f"Years:{yrs}|Status:{cstat}|Revenue:${rev}M|P&L:${pnl}M|"
-                f"Debt:${debt}M|Cash:${cash}M|Growth:{grw}%|Val:${val}M|"
+                f"Company:{cname}|Industry:{ind}|Country:{country}|"
+                f"Type:{ctype}|Years:{yrs}|Status:{cstat}|"
+                f"Revenue:${rev}M|P&L:${pnl}M|Debt:${debt}M|"
+                f"Cash:${cash}M|Growth:{grw}%|Val:${val}M|"
                 f"D/E:{de}|EBITDA:${ebitda}M|Burn:${burn}M|"
                 f"Investment:{itype}|Amount:${iamt}M|Return:{eret}%|"
                 f"Time:{tframe}|Market:{mkt}|Finance:{fin}|"
                 f"Conditions:{mktc}|Reg:{reg}|Tech:{tech}|Risk:{rtol}|"
-                f"Competitors:{comp}|Why:{why}|Risk:{risk}|Events:{events}|"
-                f"DECISION:{decision}"
+                f"Competitors:{comp}|Why:{why}|Risk:{risk}|"
+                f"Events:{events}|DECISION:{decision}"
             )
 
             all_d = []
@@ -1315,7 +1345,7 @@ ALTERNATIVE: (if NO — what instead?)
                 "Investment Decision!"
             )
 
-# JURY DEMO
+# ── JURY DEMO ────────────────────────────────────────
 elif page == "🎤 Jury Demo":
     st.title("🎤 Jury Presentation Demo")
     st.markdown("*Live simulation for thesis defense*")
@@ -1334,7 +1364,8 @@ elif page == "🎤 Jury Demo":
         if dco and dyr:
             st.markdown(f"""
             <div style='background:#0a1628; border-radius:12px;
-                        padding:20px; margin:16px 0; border:1px solid #c9a227;'>
+                        padding:20px; margin:16px 0;
+                        border:1px solid #c9a227;'>
                 <div style='color:#c9a227; font-size:11px;
                             text-transform:uppercase; letter-spacing:2px;'>
                     Live Simulation</div>
@@ -1384,12 +1415,14 @@ REASON 3: (one sentence)
                         score_int = int(sc) if sc.isdigit() else 50
 
                         st.markdown(f"""
-                        <div style='background:#ffffff; border:2px solid {p['color']};
+                        <div style='background:#ffffff;
+                                    border:2px solid {p['color']};
                                     border-radius:14px; padding:16px;'>
                             <div style='color:{p['color']}; font-weight:800;
                                         font-size:14px; margin-bottom:10px;'>
                                 {p['name']}</div>
-                            <div style='background:{vbg}; border:2px solid {vc};
+                            <div style='background:{vbg};
+                                        border:2px solid {vc};
                                         border-radius:10px; padding:10px;
                                         text-align:center; margin-bottom:10px;'>
                                 <span style='color:{vc}; font-weight:900;
@@ -1440,7 +1473,8 @@ REASON 3: (one sentence)
                     <span style='color:{vc}; font-size:13px; opacity:0.9;'>
                         Avg: {avg:.0f}/100</span>
                     <span style='color:{vc}; font-size:13px; opacity:0.9;'>
-                        Neutral: {all_scores[0] if all_scores else 0}/100</span>
+                        Neutral: {all_scores[0] if all_scores else 0}/100
+                    </span>
                     <span style='color:{vc}; font-size:13px; opacity:0.9;'>
                         Aggressive: {all_scores[1] if len(all_scores)>1 else 0}/100
                     </span>
@@ -1467,7 +1501,7 @@ REASON 3: (one sentence)
                 "not financial advice"
             )
 
-# ABOUT
+# ── ABOUT ────────────────────────────────────────────
 elif page == "📋 About":
     st.title("📋 About This Research")
     st.markdown(
@@ -1705,7 +1739,8 @@ elif page == "📋 About":
 
     st.markdown("---")
     st.markdown("""
-    <div style='text-align:center; padding:16px; color:#94a3b8; font-size:12px;'>
+    <div style='text-align:center; padding:16px;
+                color:#94a3b8; font-size:12px;'>
         Master's Thesis · The Agentic Alpha · Meryam El Ghouti ·
         Sapienza University of Rome · 2026 ·
         <span style='color:#c9a227;'>agenticalpha.streamlit.app</span>

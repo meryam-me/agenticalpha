@@ -1186,8 +1186,8 @@ elif page == "📂 Custom Analysis":
                                 try: sc=str(int(''.join(filter(str.isdigit, line.split("SCORE:")[-1].strip()))[:3]))
                                 except: sc="50"
                             elif "CONFIDENCE:" in line:
-    try: conf=str(int(''.join(filter(str.isdigit, line.split("CONFIDENCE:")[-1].strip()))[:3]))
-    except: conf="50"
+                                try: conf=str(int(''.join(filter(str.isdigit, line.split("CONFIDENCE:")[-1].strip()))[:3]))
+                                except: conf="50"
                             elif "REASON 1:" in line: r1=line.split("REASON 1:")[-1].strip()
                             elif "REASON 2:" in line: r2=line.split("REASON 2:")[-1].strip()
                             elif "REASON 3:" in line: r3=line.split("REASON 3:")[-1].strip()

@@ -432,16 +432,11 @@ if page == "⚡ Home":
     <div style='background:linear-gradient(135deg,#0a1628,#1a3a6b);
                 border-radius:16px; padding:40px; margin-bottom:24px;
                 border:1px solid #c9a227; text-align:center;'>
-        <div style='width:64px; height:64px; margin:0 auto 16px;
-                    background:#fff; border-radius:50%;
-                    border:3px solid #c9a227;
-                    display:flex; align-items:center; justify-content:center;'>
-            <span style='font-size:22px; font-weight:900;
-                         background:linear-gradient(135deg,#c9a227,#FFD700);
-                         -webkit-background-clip:text;
-                         -webkit-text-fill-color:transparent;
-                         letter-spacing:-2px;'>AA</span>
-        </div>
+        <div style='margin:0 auto;'>
+        <img src='https://raw.githubusercontent.com/meryam-me/agenticalpha/refs/heads/main/agentic-alpha-logo.png.jpeg'
+             style='width:160px; height:auto; border-radius:8px;'
+             alt='Agentic Alpha'>
+    </div>
         <div style='font-size:30px; font-weight:900; color:#FFD700;
                     margin-bottom:10px;'>THE AGENTIC ALPHA</div>
         <div style='font-size:15px; color:#94a3b8; max-width:560px;

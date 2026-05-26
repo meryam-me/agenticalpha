@@ -178,7 +178,7 @@ hr { border: none; border-top: 1px solid #e2e8f0; margin: 20px 0; }
 st.sidebar.markdown("""
 <div style='text-align:center; padding:20px 0 24px;'>
     <div style='margin:0 auto 16px;'>
-            <img src='https://raw.githubusercontent.com/meryam-me/agenticalpha/refs/heads/main/agentic-alpha-logo.png.jpeg'
+            <img src='https://raw.githubusercontent.com/meryam-me/agenticalpha/refs/heads/main/agentic-alpha-logo.png.png'
                  style='width:280px; height:auto; border-radius:12px;'
                  alt='Agentic Alpha Logo'>
         </div>
@@ -433,7 +433,7 @@ if page == "⚡ Home":
                 border-radius:16px; padding:40px; margin-bottom:24px;
                 border:1px solid #c9a227; text-align:center;'>
         <div style='margin:0 auto;'>
-        <img src='https://raw.githubusercontent.com/meryam-me/agenticalpha/refs/heads/main/agentic-alpha-logo.png.jpeg'
+        <img src='https://raw.githubusercontent.com/meryam-me/agenticalpha/refs/heads/main/agentic-alpha-logo.png.png'
              style='width:160px; height:auto; border-radius:8px;'
              alt='Agentic Alpha'>
     </div>

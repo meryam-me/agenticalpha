@@ -177,18 +177,11 @@ hr { border: none; border-top: 1px solid #e2e8f0; margin: 20px 0; }
 
 st.sidebar.markdown("""
 <div style='text-align:center; padding:20px 0 24px;'>
-    <div style='width:72px; height:72px; margin:0 auto;
-                background:#ffffff; border-radius:50%;
-                border:3px solid #c9a227;
-                display:flex; align-items:center;
-                justify-content:center;
-                box-shadow:0 4px 15px rgba(201,162,39,0.3);'>
-        <span style='font-size:26px; font-weight:900;
-                     background:linear-gradient(135deg,#c9a227,#FFD700);
-                     -webkit-background-clip:text;
-                     -webkit-text-fill-color:transparent;
-                     letter-spacing:-2px;'>AA</span>
-    </div>
+    <div style='margin:0 auto 16px;'>
+            <img src='https://raw.githubusercontent.com/meryam-me/agenticalpha/refs/heads/main/agentic-alpha-logo.png.jpeg'
+                 style='width:280px; height:auto; border-radius:12px;'
+                 alt='Agentic Alpha Logo'>
+        </div>
     <div style='margin-top:14px; font-size:15px; font-weight:800;
                 color:#FFD700; letter-spacing:1px;'>THE AGENTIC ALPHA</div>
     <div style='font-size:10px; color:#94a3b8; letter-spacing:2px;
